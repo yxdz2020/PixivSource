@@ -89,12 +89,7 @@ function handlerDiscovery() {
 function handlerWatchList(){
     return () => {
         let res = JSON.parse(result)
-        let novels = []
-        res.body.thumbnails.novelSeries.forEach(novel => {
-            novel.oneShot = false
-            novels.push(novel)
-        })
-        return util.formatNovels(util.handNovels(novels))
+        return util.formatNovels(util.handNovels(res.body.thumbnails.novelSeries))
     }
 }
 
