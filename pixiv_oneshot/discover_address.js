@@ -32,10 +32,30 @@ general = [
     {"女性": "https://www.pixiv.net/novel/ranking.php?mode=female"}
 ]
 
+bookmarks = [{"❤️ 收藏": ""}]
 
 li = li.concat(r18)
 if (SHOW_GENERAL_NOVELS_RANK === true) {
     li = li.concat(general)
+}
+try {
+    authors = String(source.getVariable()).split("\n")
+    if (authors[0].trim() !== "" && authors.length >= 1) {
+        for (let i in authors) {
+            if (authors[i] !== "") {
+                let authorId = authors[i].match(RegExp(/\d+/))[0]
+                let resp = JSON.parse(java.ajax(`https://www.pixiv.net/ajax/user/${authorId}`))
+                if (resp.error !== true) {
+                    let bookmark = {}
+                    bookmark[resp.body.name] = `https://www.pixiv.net/ajax/user/${authorId}/novels/bookmarks?tag=&offset={{(page-1)*24}}&limit=24&rest=show&lang=zh`
+                    bookmarks.push(bookmark)
+                }
+            }
+        }
+        li = li.concat(bookmarks)
+    }
+} catch (e) {
+    java.longToast("源变量设置有误")
 }
 
 li.forEach(item => {
