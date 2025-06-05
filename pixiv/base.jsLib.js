@@ -1,5 +1,6 @@
 var checkTimes = 0
 var cacheSaveSeconds = 7*24*60*60  // 缓存时间7天
+var time = 0
 
 function cacheGetAndSet(cache, key, supplyFunc) {
     let v = cache.get(key)
@@ -26,34 +27,68 @@ function isJsonString(str) {
     return false
 }
 
+
 function getAjaxJson(url, forceUpdate) {
     const {java, cache} = this
+    let time1 = new Date().getTime()
+    let result
+
     if (forceUpdate === true) {
-        let result = JSON.parse(java.ajax(url))
+        result = JSON.parse(java.ajax(url))
         cache.put(url, JSON.stringify(result), cacheSaveSeconds)
-        return result
+    } else {
+        result = cacheGetAndSet(cache, url, () => {
+            return JSON.parse(java.ajax(url))
+        })
     }
-    return cacheGetAndSet(cache, url, () => {
-        return JSON.parse(java.ajax(url))
-    })
+
+    let time2 = new Date().getTime()
+    let time = Number(java.get("time"))
+    time += (time2 - time1)
+    java.log(`\n请求时间：${time2 - time1}ms\n请求内容：${url}\n累计请求时间：${time}ms\n`)
+    java.put("time", time)
+    return result
 }
+
 function getAjaxAllJson(urls, forceUpdate) {
     const {java, cache} = this
+    let time1 = new Date().getTime()
+    let result
+
     if (forceUpdate === true) {
-        let result = java.ajaxAll(urls).map(resp => JSON.parse(resp.body()).body)
+        result = java.ajaxAll(urls).map(resp => JSON.parse(resp.body()).body)
         cache.put(urls, JSON.stringify(result), cacheSaveSeconds)
-        return result
+
+    } else {
+        result = cacheGetAndSet(cache, urls, () => {
+            return java.ajaxAll(urls).map(resp => JSON.parse(resp.body()).body)
+        })
     }
-    return cacheGetAndSet(cache, urls, () => {
-        return java.ajaxAll(urls).map(resp => JSON.parse(resp.body()).body)
-    })
+
+    let time2 = new Date().getTime()
+    let time = Number(java.get("time"))
+    time += (time2 - time1)
+    java.log(`\n请求时间：${time2 - time1}ms\n请求内容：${urls}\n累计请求时间：${time}ms\n`)
+    java.put("time", time)
+    return result
 }
+
 function getWebviewJson(url, parseFunc) {
     const {java, cache} = this
-    return cacheGetAndSet(cache, url, () => {
+    let time1 = new Date().getTime()
+    let result
+
+    result = cacheGetAndSet(cache, url, () => {
         let html = java.webView(null, url, null)
         return JSON.parse(parseFunc(html))
     })
+
+    let time2 = new Date().getTime()
+    let time = Number(java.get("time"))
+    time += (time2 - time1)
+    java.log(`\n请求时间：${time2 - time1}ms\n请求内容：${url}\n累计请求时间：${time}ms\n`)
+    java.put("time", time)
+    return result
 }
 
 function isLogin() {
