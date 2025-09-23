@@ -154,11 +154,13 @@ export function getPostBody(
         return JSON.parse(java.post(url, body, headers).body());
     } catch (e) {
         // sleepToast(JSON.stringify(headers))
-        if (String(e).includes("400")) sleepToast(`⚠️ 缺少 headers ${JSON.stringify(headers)}`, 1);
+        if (String(e).includes("400"))
+            sleepToast(`📤 getPostBody\n\n⚠️ 缺少 headers ${JSON.stringify(headers)}`, 1,);
         else if (String(e).includes("403"))
-            sleepToast(`⚠️ 缺少 cookie 或 cookie 过期`, 1);
-        else if (String(e).includes("404")) sleepToast(`⚠️ 404 | headers: ${JSON.stringify(headers)}`, 1);
-        else if (String(e).includes("422")) sleepToast(`⚠️ 请求信息有误`, 1);
+            sleepToast(`📤 getPostBody\n\n⚠️ 缺少 cookie 或 cookie 过期`, 1);
+        else if (String(e).includes("404"))
+            sleepToast(`📤 getPostBody\n\n⚠️ 404 缺少 csfrToken}`, 1,);
+        else if (String(e).includes("422")) sleepToast(`📤 getPostBody\n\n⚠️ 请求信息有误`, 1);
         return { error: true };
     }
 }
@@ -174,11 +176,12 @@ export function novelBookmarkAdd(restrict = 0) {
             tags: [],
         }),
     );
-    if (resp.error === true)
+    if (resp.error === true) {
         sleepToast(`❤️ 收藏小说\n\n⚠️ 收藏【${novel.title}】失败`);
-    else if (resp.body === null)
+        shareFactory("novel")
+    } else if (resp.body === null) {
         sleepToast(`❤️ 收藏小说\n\n✅ 已经收藏【${novel.title}】了`);
-    else {
+    } else {
         cache.put(`collect${novel.id}`, resp.body);
         sleepToast(`❤️ 收藏小说\n\n✅ 已收藏【${novel.title}】`);
 
