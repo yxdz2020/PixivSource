@@ -593,21 +593,37 @@ export function novelCommentDelete() {
 const wordsType = {
     caption: "📃 简介屏蔽列表",
     tags: "#️ 标签屏蔽列表",
+    authors: "👤 作者屏蔽列表"
 };
 
 type WordsTypeKey = keyof typeof wordsType;
 
+export function printAuthorMap(map:Map<string, string>): string {
+    let text= "";
+    map.forEach((value, key) => {
+        text += `@${value}  ${key}\n`
+    })
+    return text.trim()
+}
+
 export function blockWordShow() {
     const keys = Object.keys(wordsType) as WordsTypeKey[];
     let key = getFromCache("wordsType") as WordsTypeKey;
-    if (!key) key = keys[0];
-    if (key === keys[0]) key = keys[1];
-    else if (key === keys[1]) key = keys[0];
-    putInCache("wordsType", key);
+    // 切换屏蔽列表
+    let index = keys.indexOf(key) + 1
+    if (index === keys.length) index = 0
+    key = keys[index]
+    putInCache("wordsType", key)
 
-    let words = getFromCache(`${key}BlockWords`);
-    if (words === undefined) words = [];
-    sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words.join("\n")}`, 5);
+    if (key !== "authors") {
+        let words = getFromCache(`${key}BlockWords`)
+        if (words === undefined) words = []
+        sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words.join("\n")}`, 2)
+    } else {
+        let words = printAuthorMap(getFromCacheMap("blockAuthorMap"))
+        if (words === undefined) words = ""
+        sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words}`, 2)
+    }
 }
 
 export function blockWordAdd() {
