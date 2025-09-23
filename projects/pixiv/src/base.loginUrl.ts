@@ -155,12 +155,16 @@ export function getPostBody(
     } catch (e) {
         // sleepToast(JSON.stringify(headers))
         if (String(e).includes("400"))
-            sleepToast(`📤 getPostBody\n\n⚠️ 缺少 headers ${JSON.stringify(headers)}`, 1,);
+            sleepToast(
+                `📤 getPostBody\n\n⚠️ 缺少 headers ${JSON.stringify(headers)}`,
+                1,
+            );
         else if (String(e).includes("403"))
             sleepToast(`📤 getPostBody\n\n⚠️ 缺少 cookie 或 cookie 过期`, 1);
         else if (String(e).includes("404"))
-            sleepToast(`📤 getPostBody\n\n⚠️ 404 缺少 csfrToken}`, 1,);
-        else if (String(e).includes("422")) sleepToast(`📤 getPostBody\n\n⚠️ 请求信息有误`, 1);
+            sleepToast(`📤 getPostBody\n\n⚠️ 404 缺少 csfrToken}`, 1);
+        else if (String(e).includes("422"))
+            sleepToast(`📤 getPostBody\n\n⚠️ 请求信息有误`, 1);
         return { error: true };
     }
 }
@@ -178,7 +182,7 @@ export function novelBookmarkAdd(restrict = 0) {
     );
     if (resp.error === true) {
         sleepToast(`❤️ 收藏小说\n\n⚠️ 收藏【${novel.title}】失败`);
-        shareFactory("novel")
+        shareFactory("novel");
     } else if (resp.body === null) {
         sleepToast(`❤️ 收藏小说\n\n✅ 已经收藏【${novel.title}】了`);
     } else {
@@ -474,27 +478,34 @@ export function userBlackList() {
 }
 
 export function userBlock() {
-    let authors: number[]  = getFromCache("blockAuthorList")
-    let authorsMap: Map<String, String> = getFromCacheMap("blockAuthorMap")
+    let authors: number[] = getFromCache("blockAuthorList");
+    let authorsMap: Map<String, String> = getFromCacheMap("blockAuthorMap");
     if (!authorsMap || authorsMap.size === 0) {
-        authorsMap = new Map()
+        authorsMap = new Map();
         authors.forEach(author => {
-            authorsMap.set(author, getAjaxJson(urlUserDetailed(author)).body.name)
-        })
+            authorsMap.set(
+                author,
+                getAjaxJson(urlUserDetailed(author)).body.name,
+            );
+        });
     }
 
-    let novel = getNovel()
+    let novel = getNovel();
     if (authorsMap.has(String(novel.userId))) {
-        authorsMap.delete(String(novel.userId))
-        sleepToast(`🚫 屏蔽作者\n\n✅ 已取消屏蔽【${novel.userName}】\n现已恢复显示其小说`)
+        authorsMap.delete(String(novel.userId));
+        sleepToast(
+            `🚫 屏蔽作者\n\n✅ 已取消屏蔽【${novel.userName}】\n现已恢复显示其小说`,
+        );
     } else if (!!novel.userId) {
-        authorsMap.set(String(novel.userId), novel.userName)
-        sleepToast(`🚫 屏蔽作者\n\n✅ 本地已屏蔽【${novel.userName}】\n今后不再显示其小说`)
+        authorsMap.set(String(novel.userId), novel.userName);
+        sleepToast(
+            `🚫 屏蔽作者\n\n✅ 本地已屏蔽【${novel.userName}】\n今后不再显示其小说`,
+        );
     }
 
-    authors = Array.from(authorsMap.keys())
-    putInCache("blockAuthorList", authors)
-    putInCacheMap("blockAuthorMap", authorsMap)
+    authors = Array.from(authorsMap.keys());
+    putInCache("blockAuthorList", authors);
+    putInCacheMap("blockAuthorMap", authorsMap);
     // source.setVariable(authors.toString())
     // sleepToast(JSON.stringify(authors))
 }
@@ -596,36 +607,36 @@ export function novelCommentDelete() {
 const wordsType = {
     caption: "📃 简介屏蔽列表",
     tags: "#️ 标签屏蔽列表",
-    authors: "👤 作者屏蔽列表"
+    authors: "👤 作者屏蔽列表",
 };
 
 type WordsTypeKey = keyof typeof wordsType;
 
-export function printAuthorMap(map:Map<string, string>): string {
-    let text= "";
+export function printAuthorMap(map: Map<string, string>): string {
+    let text = "";
     map.forEach((value, key) => {
-        text += `@${value}  ${key}\n`
-    })
-    return text.trim()
+        text += `@${value}  ${key}\n`;
+    });
+    return text.trim();
 }
 
 export function blockWordShow() {
     const keys = Object.keys(wordsType) as WordsTypeKey[];
     let key = getFromCache("wordsType") as WordsTypeKey;
     // 切换屏蔽列表
-    let index = keys.indexOf(key) + 1
-    if (index === keys.length) index = 0
-    key = keys[index]
-    putInCache("wordsType", key)
+    let index = keys.indexOf(key) + 1;
+    if (index === keys.length) index = 0;
+    key = keys[index];
+    putInCache("wordsType", key);
 
     if (key !== "authors") {
-        let words = getFromCache(`${key}BlockWords`)
-        if (words === undefined) words = []
-        sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words.join("\n")}`, 2)
+        let words = getFromCache(`${key}BlockWords`);
+        if (words === undefined) words = [];
+        sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words.join("\n")}`, 2);
     } else {
-        let words = printAuthorMap(getFromCacheMap("blockAuthorMap"))
-        if (words === undefined) words = ""
-        sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words}`, 2)
+        let words = printAuthorMap(getFromCacheMap("blockAuthorMap"));
+        if (words === undefined) words = "";
+        sleepToast(`👀 查看屏蔽\n${wordsType[key]}\n\n${words}`, 2);
     }
 }
 
