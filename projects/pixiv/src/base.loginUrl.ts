@@ -148,7 +148,7 @@ export function getPostBody(
             "application/x-www-form-urlencoded; charset=utf-8";
     }
     try {
-        java.log(`getPostBody(${url}, ${body}, ${headers})`);
+        java.log(`getPostBody(${url}, ${body}, ${JSON.stringify(headers)})`);
         return JSON.parse(java.post(url, body, headers).body());
     } catch (e) {
         // sleepToast(JSON.stringify(headers))
@@ -157,6 +157,7 @@ export function getPostBody(
             sleepToast(`⚠️ 缺少 cookie 或 cookie 过期`, 1);
         else if (String(e).includes("404")) sleepToast(`⚠️ 404 | headers: ${JSON.stringify(headers)}`, 1);
         else if (String(e).includes("422")) sleepToast(`⚠️ 请求信息有误`, 1);
+        else sleepToast(`⚠️ 错误：${e}`, 1)
         return { error: true };
     }
 }

@@ -253,7 +253,11 @@ function ConstructUtil(): Util {
      */
     _t.getCsrfToken = (): string | null => {
         let csrfToken = cache.get("csrfToken");
-        if (!csrfToken || csrfToken === "null") {
+        if (
+            csrfToken === null ||
+            csrfToken === undefined ||
+            csrfToken === "null"
+        ) {
             let html = java.webView(null, "https://www.pixiv.net/", null);
             try {
                 csrfToken = html!.match(/token\\":\\"([a-z0-9]{32})/)![1];
